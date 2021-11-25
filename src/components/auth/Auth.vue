@@ -1,14 +1,7 @@
 <template>
     <div class="container">
         <!-- login form -->
-        <div v-if="loggedIn">
-            <router-link :to="{ name: 'Dashboard' }">
-                <div class="d-flex align-center">
-                    <v-btn text rounded color="white">Dasboard</v-btn>
-                </div>
-            </router-link>
-        </div>
-        <div  v-else>
+        <div>
             <v-card elevation="0">
                 <v-img src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png" alt="" contain height="60"></v-img>
                 <v-card-text>

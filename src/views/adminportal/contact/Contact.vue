@@ -13,35 +13,32 @@
                 </template>
             </v-breadcrumbs>
             <!-- breadcrumbs End-->
-
             <!-- Data Table-->
-            <div v-if="dataList.length">
-                <v-card>
-                    <v-toolbar flat >
-                        <v-toolbar-title>Members</v-toolbar-title>
-                        <v-divider class="mx-4" inset vertical></v-divider>
-                        
-                        <v-btn color="green darken-1" small dark @click="createBtn"><v-icon dark small class="mr-1"> mdi-plus </v-icon>Add New</v-btn>
-                    </v-toolbar>
-                    <v-toolbar flat >
-                        <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" color="deep-purple" single-line hide-details ></v-text-field>
-                        <v-spacer></v-spacer>
-                    </v-toolbar>
-                    <!-- datatable -->                        
-                    <v-data-table class="elevation-1" :headers="headers" :items="dataIndex" :search="search" :loading="loading"
-                        loading-text="Loading... Please wait" :footer-props="{itemsPerPageOptions: [5,10,15],itemsPerPageText: 'Data Per Page','show-current-page': true,'show-first-last-page': true}">
-                        <template v-slot:[`item.actions`]="{ item }" >
-                            <v-icon small color="green" class="mr-2" @click="phoneBtn(item.phone)">mdi-phone-forward</v-icon>
-                            <v-icon small color="cyan" class="mr-2" @click="editBtn(item.id)"> mdi-pencil </v-icon>
-                            <v-icon small color="red"  @click="deleteBtn(item.id)"> mdi-delete </v-icon>
-                        </template>
-                    </v-data-table>
-                    <!-- End datatable -->
-                </v-card>
-            </div>
-            <div v-else>
-                <Spinner />
-            </div>
+            <v-card>
+               <v-toolbar flat >
+                    <v-toolbar-title>List</v-toolbar-title>
+                    <v-divider class="mx-4" inset vertical></v-divider>
+                    <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" color="dark" single-line hide-details ></v-text-field>
+                    <v-divider class="mx-4" inset vertical></v-divider>
+                    <v-spacer></v-spacer>
+                    <v-divider class="mx-4" inset vertical></v-divider>
+                    <v-btn color="cyan" small dark class="mb-2">Print</v-btn>
+                    <v-divider class="mx-4" inset vertical></v-divider>
+                    <v-btn color="red" small dark class="mb-2">Delete Selected</v-btn>
+                    <v-divider class="mx-4" inset vertical></v-divider>
+                    <v-btn color="deep-purple" small dark class="mb-2" @click="createBtn"><v-icon dark small> mdi-plus </v-icon>Add New</v-btn>
+                </v-toolbar>
+                <!-- datatable -->                        
+                <v-data-table class="elevation-1" :headers="headers" :items="dataIndex" :search="search" :loading="loading"
+                    loading-text="Loading... Please wait" :footer-props="{itemsPerPageOptions: [5,10,15],itemsPerPageText: 'Data Per Page','show-current-page': true,'show-first-last-page': true}">
+                    <template v-slot:[`item.actions`]="{ item }" >
+                        <v-icon small color="green" class="mr-2" @click="phoneBtn(item.phone)">mdi-phone-forward</v-icon>
+                        <v-icon small color="cyan" class="mr-2" @click="editBtn(item.id)"> mdi-pencil </v-icon>
+                        <v-icon small color="red"  @click="deleteBtn(item.id)"> mdi-delete </v-icon>
+                    </template>
+                </v-data-table>
+                <!-- End datatable -->
+            </v-card>
             <!-- Delete Modal -->
             <v-row justify="center">
                 <v-dialog
@@ -90,7 +87,7 @@
                                     <v-text-field label="Name" v-model="actionData.name" required></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="12" md="12" >
-                                    <v-text-field label="Email" type="number" v-model="actionData.email"></v-text-field>
+                                    <v-text-field label="Email" type="email" v-model="actionData.email"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="12" md="12" >
                                     <v-text-field label="Phone" type="number" :counter="11" v-model="actionData.phone"></v-text-field>
@@ -130,7 +127,7 @@
                                     <v-text-field label="Name" v-model="name" required></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="12" md="12" >
-                                    <v-text-field label="Email" type="number" v-model="email" ></v-text-field>
+                                    <v-text-field label="Email" type="email" v-model="email" ></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="12" md="12" >
                                     <v-text-field label="Phone" type="number" :counter="11" v-model="phone"></v-text-field>
@@ -241,14 +238,12 @@ export default {
         },
         createData() {
             this.loading = true;
-            if(this.name && this.serial && this.amount && this.phone && this.total_members){
+            if(this.name && this.email && this.phone){
                 this.feedback = null
             db.collection('contact').add({
                 name: this.name,
-                serial: this.serial,
-                amount: this.amount,
+                email: this.email,
                 phone: this.phone,
-                total_members: this.total_members
             })
             .then((res) => {
                 this.tempId = res.id;
@@ -257,18 +252,14 @@ export default {
                 this.text = "successfully added";
                 let newdata = {
                     name: this.name,
-                    serial: this.serial,
-                    amount: this.amount,
+                    email: this.email,
                     phone: this.phone,
-                    total_members: this.total_members,
                     id: this.tempId,
                 };
                 this.dataList.push(newdata)
                 this.name='';
-                this.serial='';
-                this.amount='';
+                this.email='';
                 this.phone='';
-                this.total_members='';
                 this.createDialog=false;
                 this.loading = false;
                 
@@ -301,14 +292,12 @@ export default {
         updateData() {
             this.loading = true;
             let id = this.actionId
-            if(this.actionData.name && this.actionData.serial && this.actionData.amount && this.actionData.phone && this.actionData.total_members){
+            if(this.actionData.name && this.actionData.email && this.actionData.phone){
             this.feedback = null
             db.collection('contact').doc(id).update({
                 name: this.actionData.name,
-                serial: this.actionData.serial,
-                amount: this.actionData.amount,
-                phone: this.actionData.phone,
-                total_members: this.actionData.total_members
+                email: this.actionData.email,
+                phone: this.actionData.phone
             })
             .then(() => {
                 this.color = 'green';
@@ -317,10 +306,8 @@ export default {
                
                 let newdata = {
                     name: this.actionData.name,
-                    serial: this.actionData.serial,
-                    amount: this.actionData.amount,
+                    email: this.actionData.email,
                     phone: this.actionData.phone,
-                    total_members: this.actionData.total_members,
                     id: this.actionId,
                 };
 
